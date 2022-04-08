@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      canvas {
+        background-color: black;
+      }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer type="module" src="./views/index.js"></script>
+    <title>Explosiones</title>
+  </head>
+  <body>
+    <div
+      style="display: flex"
+      id="ui"
+      class="fixed select-none flex justify-center grid inset-0 items-center"
+    >
+      <div
+        class="bg-white grid justify-items-center items-center max-w-md w-full p-5"
+      >
+        <h3 id="statusOfGame" class="font-bold p-2">Play!</h3>
+        <span class="mb-5"> Score: <span id="uIscoreNum"> 0 </span> </span>
+        <button
+          class="block bg-sky-500/100 text-white p-2 mt-5 rounded"
+          id="startGame"
+        >
+          Start new game
+        </button>
+      </div>
+    </div>
+    <div class="fixed text-white select-none ml-2 mt-2" id="score">
+      <span> Score: <span id="scoreNum"> 0 </span> </span>
+    </div>
+    <canvas> </canvas>
+  </body>
+</html>
