@@ -1,4 +1,4 @@
-import { Projectile, Player, Enemy } from "./entities.js";
+import { Projectile, Player, Enemy, Particle } from "./entities.js";
 import {
   getDistanceBetweenTwoPoints,
   getRandomInt,
@@ -11,22 +11,24 @@ const $uiscore = document.querySelector("#uIscoreNum");
 const $ui = document.querySelector("#ui");
 const $startGameBtn = document.querySelector("#startGame");
 const $statusOfGame = document.querySelector("#statusOfGame");
-const canvas = document.querySelector("canvas");
-export const context = canvas.getContext("2d");
+const $canvas = document.querySelector("canvas");
+export const context = $canvas.getContext("2d");
 
 // Adjust canvas to be full screen
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+$canvas.width = innerWidth;
+$canvas.height = innerHeight;
 
 // Objects
 let player1;
 let enemies = new Array();
 let projectiles = new Array();
+let particles = new Array();
 let score = 0;
 let animationFrame;
 let isGameRunning = false;
-let isGameWin = false;
+let isGameWin;
 let numberOfEnemies = 2;
+let switcher = 0;
 
 const mouse = {
   x: undefined,
@@ -41,10 +43,12 @@ addEventListener("mousemove", (event) => {
 
 addEventListener("resize", () => {
   // Adjust canvas size on resize to be full screen
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
+  $canvas.width = innerWidth;
+  $canvas.height = innerHeight;
 
-  if (isGameRunning) init();
+  if (isGameRunning) {
+    init();
+  }
 });
 
 addEventListener("click", (event) => {
@@ -67,19 +71,8 @@ addEventListener("click", (event) => {
 // Implementation
 function init() {
   // Init is called on resize, enemies are spawned again and enemies array must be restarted
-  enemies = [];
   projectiles = [];
-  // FIXME:
-  // - The status (isGameWin) doesnt update correctly.
-  if (isGameWin) {
-    score = score;
-    numberOfEnemies += 2;
-    $statusOfGame.innerHTML = "You win!";
-  } else {
-    score = 0;
-    numberOfEnemies = 2;
-    $statusOfGame.innerHTML = "Game lose, try again";
-  }
+
   $score.innerHTML = score;
   $uiscore.innerHTML = score;
 
@@ -87,23 +80,26 @@ function init() {
   player1 = new Player(innerWidth / 2, innerHeight / 2, 30, "purple");
 
   // initialize enemies
-  //FIXME:
-  // - Spawn enemies within x = 0 | x = innerWidth & y = 0 | y = innerHeight
 
   for (let index = 0; index < numberOfEnemies; index++) {
-    const x = Math.random() * innerWidth;
-    const y = Math.floor(Math.random() - 0.5) === 0 ? 0 : innerHeight;
+    let radius = getRandomInt(20, 40);
+    let x = 0;
+    let y = 0;
+    if (switcher === 0) {
+      x = getRandomInt(0, innerWidth);
+      y = Math.random() < 0.5 ? 0 : innerHeight;
+    } else if (switcher === 1) {
+      y = getRandomInt(0, innerWidth);
+      x = Math.random() < 0.5 ? 0 : innerWidth;
+    }
+
+    // it will get inside else most of times.
+
     const velocityOfEnemy = moveToPoint(player1.x, x, player1.y, y);
     enemies.push(
-      new Enemy(
-        x,
-        y,
-        velocityOfEnemy,
-        getRandomInt(20, 40),
-        randomColor(),
-        false
-      )
+      new Enemy(x, y, velocityOfEnemy, radius, randomColor(), false)
     );
+    switcher === 0 ? (switcher = 1) : (switcher = 0);
   }
 
   // restart player coordinates
@@ -114,10 +110,19 @@ function init() {
 // Animation Loop
 function animate() {
   animationFrame = requestAnimationFrame(animate);
-  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.clearRect(0, 0, $canvas.width, $canvas.height);
 
   // animate player
   player1.update();
+
+  if (particles.length < 0) {
+    particles.forEach((particle, i) => {
+      if (particle.alpha <= 0) {
+        particles.splice(i, 1);
+      } else particle.update();
+    });
+    console.log(particles.length);
+  }
 
   // animate projectiles
   if (projectiles.length > 0) {
@@ -144,6 +149,18 @@ function animate() {
           ) {
             //TODO:
             // - Add explosion animation on hit
+
+            setTimeout(() => {
+              for (let i = 0; i <= enemy.radius; i++) {
+                let dx = (Math.random() - 0.5) * (Math.random() * 6);
+                let dy = (Math.random() - 0.5) * (Math.random() * 6);
+                let radius = Math.random() * 3;
+                let particle = new Particle(575, 375, radius, dx, dy);
+
+                /* Adds new items like particle*/
+                particles.push(particle);
+              }
+            }, 1000);
 
             // if enemy radius < 20 delete enemy and projectile from screen
             if (enemy.radius <= 20) {
@@ -200,12 +217,22 @@ function animate() {
     if (enemies.length === 0) isGameWin = true;
     if (!isGameRunning) isGameWin = false;
     $ui.style.display = "flex";
+    if (isGameWin) {
+      score = score;
+      numberOfEnemies += 2;
+      $statusOfGame.innerHTML = "You win!";
+    } else {
+      score = 0;
+      numberOfEnemies = 2;
+      $statusOfGame.innerHTML = "Game lose, try again";
+      enemies = [];
+    }
   }
 }
 
 $startGameBtn.addEventListener("click", () => {
-  isGameRunning = true;
   $ui.style.display = "none";
+  isGameRunning = true;
   init();
   animate();
 });

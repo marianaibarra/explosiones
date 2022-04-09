@@ -73,3 +73,37 @@ export class Player extends Projectile {
     this.draw();
   }
 }
+
+export class Particle {
+  constructor(x, y, radius, dx, dy) {
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.dx = dx;
+    this.dy = dy;
+    this.alpha = 1;
+  }
+  draw() {
+    context.save();
+    context.globalAlpha = this.alpha;
+    context.fillStyle = "green";
+
+    /* Begins or reset the path for 
+         the arc created */
+    context.beginPath();
+
+    /* Some curve is created*/
+    context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+
+    context.fill();
+
+    /* Restore the recent canvas context*/
+    context.restore();
+  }
+  update() {
+    this.draw();
+    this.alpha -= 0.01;
+    this.x += this.dx;
+    this.y += this.dy;
+  }
+}
