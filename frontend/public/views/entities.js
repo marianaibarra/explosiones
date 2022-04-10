@@ -13,7 +13,7 @@ export class Projectile {
   draw() {
     context.beginPath();
     context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    context.fillStyle = this.color;
+    context.fillStyle = `rgb(${this.color})`;
     context.fill();
     context.closePath();
   }
@@ -29,9 +29,8 @@ export class Projectile {
   }
 }
 
-export class Enemy extends Projectile {
+export class Enemy {
   constructor(x, y, velocity, radius, color, collided) {
-    super();
     this.x = x;
     this.y = y;
     this.radius = radius;
@@ -41,7 +40,11 @@ export class Enemy extends Projectile {
   }
 
   draw() {
-    super.draw();
+    context.beginPath();
+    context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    context.fillStyle = `rgb(${this.color})`;
+    context.fill();
+    context.closePath();
   }
 
   update() {
@@ -56,9 +59,8 @@ export class Enemy extends Projectile {
   }
 }
 
-export class Player extends Projectile {
+export class Player {
   constructor(x, y, radius, color) {
-    super();
     this.x = x;
     this.y = y;
     this.radius = radius;
@@ -66,7 +68,11 @@ export class Player extends Projectile {
   }
 
   draw() {
-    super.draw();
+    context.beginPath();
+    context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+    context.fillStyle = this.color;
+    context.fill();
+    context.closePath();
   }
 
   update() {
@@ -75,35 +81,44 @@ export class Player extends Projectile {
 }
 
 export class Particle {
-  constructor(x, y, radius, dx, dy) {
+  constructor(x, y, radius, color, dx, dy) {
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.dx = dx;
     this.dy = dy;
+    this.color = color;
     this.alpha = 1;
   }
   draw() {
-    context.save();
-    context.globalAlpha = this.alpha;
-    context.fillStyle = "green";
-
-    /* Begins or reset the path for 
-         the arc created */
     context.beginPath();
-
-    /* Some curve is created*/
     context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-
+    context.fillStyle = `rgba(${this.color}, ${this.alpha})`;
     context.fill();
-
-    /* Restore the recent canvas context*/
-    context.restore();
+    context.closePath();
   }
   update() {
     this.draw();
     this.alpha -= 0.01;
     this.x += this.dx;
     this.y += this.dy;
+  }
+}
+
+export class Sprite {
+  constructor(position, image) {
+    this.position = position;
+    this.image = new Image();
+    this.image.src = image;
+    this.width = 50;
+    this.height = 150;
+  }
+
+  draw() {
+    context.drawImage(this.image, this.position.x, this.position.y);
+  }
+
+  update() {
+    this.draw();
   }
 }

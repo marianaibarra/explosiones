@@ -6,6 +6,12 @@ import {
   randomColor,
 } from "./utils.js";
 
+// TODO:
+//
+// - Add sprite to player
+//
+//
+
 const $score = document.querySelector("#scoreNum");
 const $uiscore = document.querySelector("#uIscoreNum");
 const $ui = document.querySelector("#ui");
@@ -62,7 +68,14 @@ addEventListener("click", (event) => {
     // Creates a smooth animation
     const velocity = moveToPoint(event.clientX, x, event.clientY, y);
 
-    const projectile = new Projectile(x, y, velocity, radius, "red", false);
+    const projectile = new Projectile(
+      x,
+      y,
+      velocity,
+      radius,
+      player1.color,
+      false
+    );
 
     projectiles.push(projectile);
   }
@@ -72,6 +85,7 @@ addEventListener("click", (event) => {
 function init() {
   // Init is called on resize, enemies are spawned again and enemies array must be restarted
   projectiles = [];
+  particles = [];
 
   $score.innerHTML = score;
   $uiscore.innerHTML = score;
@@ -115,15 +129,6 @@ function animate() {
   // animate player
   player1.update();
 
-  if (particles.length < 0) {
-    particles.forEach((particle, i) => {
-      if (particle.alpha <= 0) {
-        particles.splice(i, 1);
-      } else particle.update();
-    });
-    console.log(particles.length);
-  }
-
   // animate projectiles
   if (projectiles.length > 0) {
     projectiles.forEach((projectile, projectileIndex) => {
@@ -147,20 +152,21 @@ function animate() {
               enemy.y
             ) <= enemy.radius
           ) {
-            //TODO:
-            // - Add explosion animation on hit
-
-            setTimeout(() => {
-              for (let i = 0; i <= enemy.radius; i++) {
-                let dx = (Math.random() - 0.5) * (Math.random() * 6);
-                let dy = (Math.random() - 0.5) * (Math.random() * 6);
-                let radius = Math.random() * 3;
-                let particle = new Particle(575, 375, radius, dx, dy);
-
-                /* Adds new items like particle*/
-                particles.push(particle);
-              }
-            }, 1000);
+            for (let i = 0; i <= enemy.radius; i++) {
+              let dx = (Math.random() - 0.5) * (Math.random() * 6);
+              let dy = (Math.random() - 0.5) * (Math.random() * 6);
+              let radius = Math.random() * 3;
+              let particle = new Particle(
+                projectile.x,
+                projectile.y,
+                radius,
+                enemy.color,
+                dx,
+                dy
+              );
+              /* Adds new items like particle*/
+              particles.push(particle);
+            }
 
             // if enemy radius < 20 delete enemy and projectile from screen
             if (enemy.radius <= 20) {
@@ -192,16 +198,23 @@ function animate() {
     });
   }
 
+  particles.forEach((particle, i) => {
+    if (particle.alpha <= 0) {
+      particles.splice(i, 1);
+    } else particle.update();
+  });
+
   // animate enemies
   enemies.forEach((enemy) => {
     // if enemy collide with player is game lose
     if (
       getDistanceBetweenTwoPoints(
-        player1.x + player1.radius,
-        player1.y + player1.radius,
-        enemy.x + enemy.radius,
-        enemy.y + enemy.radius
-      ) <= player1.radius
+        player1.x - player1.radius,
+        player1.y - player1.radius,
+        enemy.x - enemy.radius,
+        enemy.y - enemy.radius
+      ) <=
+      enemy.radius + player1.radius
     ) {
       isGameRunning = false;
       projectiles = [];
