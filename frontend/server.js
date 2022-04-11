@@ -8,6 +8,7 @@ const { PORT = 8000 } = process.env;
 const HTML_CONTENT_TYPE = "text/html";
 const CSS_CONTENT_TYPE = "text/css";
 const JS_CONTENT_TYPE = "text/javascript";
+const IMAGE_CONTENT_TYPE = "image/png";
 
 const PUBLIC_FOLDER = path.join(__dirname, "public");
 
@@ -26,6 +27,10 @@ const requestListener = (req, res) => {
   } else if (url.match(".js$")) {
     // para los archivos JavaScript
     contentType = JS_CONTENT_TYPE;
+    stream = createReadStream(`${PUBLIC_FOLDER}${url}`);
+  } else if (url.match(".png$")) {
+    // para los archivos JavaScript
+    contentType = IMAGE_CONTENT_TYPE;
     stream = createReadStream(`${PUBLIC_FOLDER}${url}`);
   } else {
     // si llegamos aquí, es un 404

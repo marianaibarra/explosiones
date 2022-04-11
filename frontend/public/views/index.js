@@ -6,12 +6,6 @@ import {
   randomColor,
 } from "./utils.js";
 
-// TODO:
-//
-// - Add sprite to player
-//
-//
-
 const $score = document.querySelector("#scoreNum");
 const $uiscore = document.querySelector("#uIscoreNum");
 const $ui = document.querySelector("#ui");
@@ -90,8 +84,7 @@ function init() {
   $score.innerHTML = score;
   $uiscore.innerHTML = score;
 
-  // Initialize player
-  player1 = new Player(innerWidth / 2, innerHeight / 2, 30, "purple");
+  player1 = new Player(innerWidth / 2, innerHeight / 2, 20, "white");
 
   // initialize enemies
 

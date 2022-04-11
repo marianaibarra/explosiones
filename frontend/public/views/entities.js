@@ -104,21 +104,3 @@ export class Particle {
     this.y += this.dy;
   }
 }
-
-export class Sprite {
-  constructor(position, image) {
-    this.position = position;
-    this.image = new Image();
-    this.image.src = image;
-    this.width = 50;
-    this.height = 150;
-  }
-
-  draw() {
-    context.drawImage(this.image, this.position.x, this.position.y);
-  }
-
-  update() {
-    this.draw();
-  }
-}
