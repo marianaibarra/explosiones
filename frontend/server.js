@@ -2,8 +2,8 @@ const { createReadStream } = require("fs");
 const { createServer } = require("http");
 const path = require("path");
 
-const HOST = "localhost";
 const { PORT = 8000 } = process.env;
+const HOST = "localhost";
 
 const HTML_CONTENT_TYPE = "text/html";
 const CSS_CONTENT_TYPE = "text/css";

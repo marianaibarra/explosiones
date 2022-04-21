@@ -12,24 +12,68 @@
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer type="module" src="./views/index.js"></script>
+    <script defer type="module" src="./controllers/client.js"></script>
     <title>Explosiones</title>
   </head>
   <body>
     <div
       style="display: flex"
       id="ui"
-      class="fixed select-none flex justify-center grid inset-0 items-center"
+      class="fixed flex justify-center grid inset-0 items-center"
     >
       <div
         class="bg-white grid justify-items-center items-center max-w-md w-full p-5"
       >
-        <h3 id="statusOfGame" class="font-bold p-2">Play!</h3>
-        <span class="mb-5"> Score: <span id="uIscoreNum"> 0 </span> </span>
+        <h3 id="statusOfGame" class="font-bold p-2 select-none">Play!</h3>
+        <span class="mb-5 select-none">
+          Score: <span id="uIscoreNum"> 0 </span>
+        </span>
         <button
-          class="block bg-sky-500/100 text-white p-2 mt-5 rounded"
+          class="block select-none bg-sky-500/100 text-white p-2 mt-5 rounded w-full"
           id="startGame"
         >
           Start new game
+        </button>
+      </div>
+      <div
+        id="multiplayer-ui"
+        class="bg-white grid justify-items-center items-center p-5 ml-3"
+      >
+        <button
+          class="block bg-sky-500/100 select-none text-white p-2 mt-5 rounded w-full"
+          id="create-party-btn"
+        >
+          Create a party
+        </button>
+        <span class="block m-2" id="party-id">0-0-0-0-0</span>
+        <input
+          class="block text-sm font-medium text-slate-700"
+          type="text"
+          placeholder="Username"
+          name="username"
+          id="username"
+          required
+        />
+        <input
+          class="block text-sm font-medium text-slate-700"
+          type="text"
+          placeholder="Enter a party"
+          name="enter-party"
+          id="join-party"
+          required
+        />
+        <button
+          class="block bg-sky-500/100 select-none text-white p-2 mt-5 rounded w-full"
+          id="join-party-btn"
+        >
+          Join a party
+        </button>
+        <button
+          style="display: none"
+          class="block bg-sky-500/100 select-none text-white p-2 mt-5 rounded w-full"
+          id="enter-party-btn"
+        >
+          Enter party
         </button>
       </div>
     </div>
