@@ -52,6 +52,7 @@ wsServer.on("request", (request) => {
     }
     if (result.method === "join") {
       const partyId = result.partyId;
+      const party = parties[partyId];
 
       if (!Object.hasOwn(parties, partyId)) {
         const payload = {
@@ -63,9 +64,8 @@ wsServer.on("request", (request) => {
       }
 
       // If there's already two people on the party
-      const partyClients = parties[partyId].clients;
 
-      if (partyClients.length >= 2) {
+      if (party.clients.length >= 2) {
         const payload = {
           method: "join",
           message: "full_party",
@@ -74,18 +74,21 @@ wsServer.on("request", (request) => {
         return;
       }
 
-      if (partyClients.length == 1) {
+      if (party.clients.length == 1) {
         const payload = {
           method: "join",
           message: "player_joined",
         };
-        // notify the creator of the party that a client has joined
-        clients[partyClients[0].clientId].connection.send(
-          JSON.stringify(payload)
-        );
+        // notify the other clients in the party that a new client has joined
+
+        party.clients.forEach((client) => {
+          clients[client.clientId].connection.send(JSON.stringify(payload));
+        });
       }
 
-      const color = { 0: "255,255,255", 1: "158,141,140" }[partyClients.length];
+      const color = { 0: "255,255,255", 1: "158,141,140" }[
+        party.clients.length
+      ];
 
       const payload = {
         method: "join",
@@ -93,7 +96,7 @@ wsServer.on("request", (request) => {
         color,
       };
 
-      partyClients.push({
+      party.clients.push({
         clientId: result.clientId,
       });
 
