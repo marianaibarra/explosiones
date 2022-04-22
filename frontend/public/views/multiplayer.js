@@ -1,28 +1,34 @@
-import {
-  username,
-  clientID,
-  color,
-  partyID,
-  socket,
-} from "../controllers/client.js";
+import { player } from "./index.js";
 
 const $partyId = document.querySelector("#party-id");
 const $joinPartyBtn = document.querySelector("#join-party-btn");
+const $notification = document.querySelector("#notification");
+const $typeNotification = document.querySelector("#type-of-notication");
+const $mesNotification = document.querySelector("#message-notification");
+const $enterPartyBtn = document.querySelector("#enter-party-btn");
 
-socket.onmessage = (message) => {
-  let response = JSON.parse(message.data);
+document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("changeDOM", (event) => {
+    if (event.detail.typeChange === "create") {
+      $partyId.innerHTML = event.detail.partyId;
+      $enterPartyBtn.style.display = "block";
+      showNoti(event.detail);
+    }
+    if (event.detail.typeChange === "join") {
+      showNoti(event.detail);
+    }
+  });
+});
 
-  // TODO:
-  // Manage client errors from server, (show notifications)
-
-  // if (response.method === "connect") {
-
-  // }
-  if (response.method === "create") {
-    $partyId.innerHTML = partyID;
-    $joinPartyBtn.style.display = "flex";
-  }
-  if (response.method === "join") {
-  }
-  console.log(response);
+const showNoti = (values) => {
+  $notification.style.display = "block";
+  $typeNotification.innerHTML = values.typeNoti;
+  $mesNotification.innerHTML = values.messageNoti;
+  setTimeout(() => {
+    $notification.style.display = "none";
+  }, 5000);
 };
+
+// TODO:
+// - Manage client errors from server, (show notifications)
+// - Handle error: Create party and click enterPartyBtn to enter party

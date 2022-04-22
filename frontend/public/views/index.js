@@ -19,7 +19,7 @@ $canvas.width = innerWidth;
 $canvas.height = innerHeight;
 
 // Objects
-let player1;
+export let player;
 let enemies = new Array();
 let projectiles = new Array();
 let particles = new Array();
@@ -37,18 +37,18 @@ const mouse = {
 
 // Event Listeners
 addEventListener("mousemove", (event) => {
-  mouse.x = event.clientX;
-  mouse.y = event.clientY;
+  if (isGameRunning) {
+    mouse.x = event.clientX;
+    mouse.y = event.clientY;
+  }
 });
 
 addEventListener("resize", () => {
   // Adjust canvas size on resize to be full screen
+
   $canvas.width = innerWidth;
   $canvas.height = innerHeight;
-
-  if (isGameRunning) {
-    init();
-  }
+  init();
 });
 
 addEventListener("click", (event) => {
@@ -67,7 +67,7 @@ addEventListener("click", (event) => {
       y,
       velocity,
       radius,
-      player1.color,
+      player.color,
       false
     );
 
@@ -84,7 +84,7 @@ function init() {
   $score.innerHTML = score;
   $uiscore.innerHTML = score;
 
-  player1 = new Player(innerWidth / 2, innerHeight / 2, 20, "white");
+  player = new Player(innerWidth / 2, innerHeight / 2, 20, "white");
 
   // initialize enemies
 
@@ -102,7 +102,7 @@ function init() {
 
     // it will get inside else most of times.
 
-    const velocityOfEnemy = moveToPoint(player1.x, x, player1.y, y);
+    const velocityOfEnemy = moveToPoint(player.x, x, player.y, y);
     enemies.push(
       new Enemy(x, y, velocityOfEnemy, radius, randomColor(), false)
     );
@@ -110,8 +110,8 @@ function init() {
   }
 
   // restart player coordinates
-  player1.x = innerWidth / 2;
-  player1.y = innerHeight / 2;
+  player.x = innerWidth / 2;
+  player.y = innerHeight / 2;
 }
 
 // Animation Loop
@@ -120,7 +120,7 @@ function animate() {
   context.clearRect(0, 0, $canvas.width, $canvas.height);
 
   // animate player
-  player1.update();
+  player.update();
 
   // animate projectiles
   if (projectiles.length > 0) {
@@ -202,12 +202,12 @@ function animate() {
     // if enemy collide with player is game lose
     if (
       getDistanceBetweenTwoPoints(
-        player1.x - player1.radius,
-        player1.y - player1.radius,
+        player.x - player.radius,
+        player.y - player.radius,
         enemy.x - enemy.radius,
         enemy.y - enemy.radius
       ) <=
-      enemy.radius + player1.radius
+      enemy.radius + player.radius
     ) {
       isGameRunning = false;
       projectiles = [];
