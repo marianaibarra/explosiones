@@ -74,33 +74,63 @@ wsServer.on("request", (request) => {
         return;
       }
 
-      if (party.clients.length == 1) {
-        const payload = {
+      if (party.clients.length === 1) {
+        let payload = {
           method: "join",
           message: "player_joined",
         };
-        // notify the other clients in the party that a new client has joined
 
         party.clients.forEach((client) => {
           clients[client.clientId].connection.send(JSON.stringify(payload));
         });
+
+        const color = { 0: "255,255,255", 1: "158,141,140" }[
+          party.clients.length
+        ];
+
+        // TODO:
+        // - Determinate turn of client
+
+        payload = {
+          method: "join",
+          message: "OK",
+          color,
+        };
+
+        party.clients.push({
+          clientId: result.clientId,
+        });
+
+        connection.send(JSON.stringify(payload));
+
+        payload = {
+          method: "start",
+        };
+
+        party.clients.forEach((client) => {
+          clients[client.clientId].connection.send(JSON.stringify(payload));
+        });
+
+        // FIXME:
+        // - Broadcast to all client in party, game has started when there's 2 clients
+        // notify the other clients in the party that a new client has joined
       }
+      if (party.clients.length === 0) {
+        const color = { 0: "255,255,255", 1: "158,141,140" }[
+          party.clients.length
+        ];
 
-      const color = { 0: "255,255,255", 1: "158,141,140" }[
-        party.clients.length
-      ];
+        const payload = {
+          method: "join",
+          message: "OK",
+          color,
+        };
 
-      const payload = {
-        method: "join",
-        message: "OK",
-        color,
-      };
-
-      party.clients.push({
-        clientId: result.clientId,
-      });
-
-      connection.send(JSON.stringify(payload));
+        party.clients.push({
+          clientId: result.clientId,
+        });
+        connection.send(JSON.stringify(payload));
+      }
     }
   });
 
