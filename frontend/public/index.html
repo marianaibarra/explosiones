@@ -11,13 +11,13 @@
       }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer type="module" src="./views/index.js"></script>
     <script defer type="module" src="./controllers/client.js"></script>
-
     <script defer type="module" src="./views/multiplayer.js"></script>
+    <script defer type="module" src="./views/index.js"></script>
     <title>Explosiones</title>
   </head>
   <body>
+    <!-- notification -->
     <div
       style="display: none"
       id="notification"
@@ -46,6 +46,7 @@
         </svg>
       </div>
     </div>
+    <!-- UI -->
     <div
       style="display: flex"
       id="ui"
@@ -96,20 +97,23 @@
           class="block bg-sky-500/100 select-none text-white p-2 mt-5 rounded w-full"
           id="join-party-btn"
         >
-          Join a party
-        </button>
-        <button
-          style="display: none"
-          class="block bg-sky-500/100 select-none text-white p-2 mt-5 rounded w-full"
-          id="enter-party-btn"
-        >
-          Enter party
+          Join
         </button>
       </div>
     </div>
+    <!-- wait status -->
+    <div
+      style="display: none"
+      id="wait-players"
+      class="fixed flex justify-center text-white grid inset-0 items-center text-2xl"
+    >
+      Please wait for other players...
+    </div>
+    <!-- score bar -->
     <div class="fixed text-white select-none ml-2 mt-2" id="score">
       <span> Score: <span id="scoreNum"> 0 </span> </span>
     </div>
+    <!-- canvas -->
     <canvas> </canvas>
   </body>
 </html>

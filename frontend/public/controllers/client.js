@@ -28,9 +28,6 @@ const changeDOM = (partyId, typeNoti, messageNoti, typeChange) => {
 socket.onmessage = (message) => {
   const response = JSON.parse(message.data);
 
-  // TODO:
-  // - set custom events, that trigger a new message w/ response of server to multiplayer.js, it handles it and changes DOM
-
   if (response.method === "connect") {
     clientID = response.clientId;
   }
@@ -51,12 +48,21 @@ socket.onmessage = (message) => {
       return;
     }
     if (response.message === "full_party") {
-      let mesNoti = "The party doesn't exists, try again";
+      let mesNoti = "Full party, try again";
       changeDOM(partyID, "ERROR", mesNoti, response.method);
+      return;
+    }
+    if (response.message === "player_joined") {
+      let mesNoti = "A player has joined";
+      changeDOM(partyID, "START", mesNoti, response.method);
       return;
     }
     let mesNoti = "Joined succesfully";
     changeDOM(partyID, "OK", mesNoti, response.method);
+  }
+  if (response.method === "start") {
+    partyID = response.partyID;
+    changeDOM(partyID, "START", "Game started", response.method);
   }
 };
 
@@ -74,16 +80,11 @@ $createPartyBtn.addEventListener("click", () => {
 $joinPartyBtn.addEventListener("click", () => {
   if ($joinPartyInp.value === "" || $usernameInp.value === "") return;
 
-  if (partyID === null) {
-    partyID = $joinPartyInp.value;
-  }
+  partyID = $joinPartyInp.value;
   const payload = {
     method: "join",
     clientId: clientID,
     partyId: partyID,
   };
   socket.send(JSON.stringify(payload));
-  // TODO:
-
-  // - Handle error: Create party and click enterPartyBtn to enter party
 });
