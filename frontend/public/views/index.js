@@ -19,7 +19,7 @@ $canvas.width = innerWidth;
 $canvas.height = innerHeight;
 
 // Objects
-export let player;
+let player;
 let enemies = new Array();
 let projectiles = new Array();
 let particles = new Array();
@@ -29,11 +29,32 @@ let isGameRunning = false;
 let isGameWin;
 let numberOfEnemies = 2;
 let switcher = 0;
+let username = null;
+let color = null;
+export let isMultiplayer = false;
 
 const mouse = {
   x: undefined,
   y: undefined,
 };
+
+const loseGame = () => {
+  const event = new CustomEvent("lose");
+
+  document.dispatchEvent(event);
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("start", (event) => {
+    isMultiplayer = true;
+    username = event.detail.username;
+    color = event.detail.color;
+    $ui.style.display = "none";
+    isGameRunning = true;
+    init();
+    animate();
+  });
+});
 
 // Event Listeners
 addEventListener("mousemove", (event) => {
@@ -84,7 +105,12 @@ function init() {
   $score.innerHTML = score;
   $uiscore.innerHTML = score;
 
-  player = new Player(innerWidth / 2, innerHeight / 2, 20, "white");
+  player = new Player(
+    innerWidth / 2,
+    innerHeight / 2,
+    20,
+    isMultiplayer ? color : "white"
+  );
 
   // initialize enemies
 
@@ -93,14 +119,14 @@ function init() {
     let x = 0;
     let y = 0;
     if (switcher === 0) {
+      // FIXME:
+      // - The enemies are being spawn way too far from player
       x = getRandomInt(0, innerWidth);
       y = Math.random() < 0.5 ? 0 : innerHeight;
     } else if (switcher === 1) {
       y = getRandomInt(0, innerWidth);
       x = Math.random() < 0.5 ? 0 : innerWidth;
     }
-
-    // it will get inside else most of times.
 
     const velocityOfEnemy = moveToPoint(player.x, x, player.y, y);
     enemies.push(
@@ -121,6 +147,14 @@ function animate() {
 
   // animate player
   player.update();
+
+  if (isMultiplayer) {
+    context.fillText(
+      username,
+      player.x + player.radius + 5,
+      player.y + player.radius + 10
+    );
+  }
 
   // animate projectiles
   if (projectiles.length > 0) {
@@ -221,7 +255,10 @@ function animate() {
   if (enemies.length === 0 || !isGameRunning) {
     cancelAnimationFrame(animationFrame);
     if (enemies.length === 0) isGameWin = true;
-    if (!isGameRunning) isGameWin = false;
+    if (!isGameRunning) {
+      isGameWin = false;
+      loseGame();
+    }
     $ui.style.display = "flex";
     if (isGameWin) {
       score = score;

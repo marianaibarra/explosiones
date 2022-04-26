@@ -1,17 +1,26 @@
-import { player } from "./index.js";
-
 const $partyId = document.querySelector("#party-id");
-// const $joinPartyBtn = document.querySelector("#join-party-btn");
 const $notification = document.querySelector("#notification");
 const $typeNotification = document.querySelector("#type-of-notication");
 const $mesNotification = document.querySelector("#message-notification");
 const $joinPartyInp = document.querySelector("#join-party");
 const $ui = document.querySelector("#ui");
 const $waitPlayers = document.querySelector("#wait-players");
-
 const normalInfo = 5000,
   waitInfo = 300000;
-let waitTimeOut = null;
+let waitTimeOut = null,
+  currentPlayer = 0,
+  maxPlayers = 1;
+
+const startCanvas = (username, color) => {
+  const event = new CustomEvent("start", {
+    detail: {
+      username,
+      color,
+    },
+  });
+
+  document.dispatchEvent(event);
+};
 
 document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("changeDOM", (event) => {
@@ -31,18 +40,30 @@ document.addEventListener("DOMContentLoaded", () => {
       showNoti(event.detail, normalInfo);
     }
     if (event.detail.typeChange === "start") {
-      startGame();
+      startGame(
+        event.detail.aditional.username,
+        event.detail.aditional.color,
+        event.detail.aditional.turn
+      );
     }
   });
 });
 
-const startGame = () => {
+const startGame = (username, color, turn) => {
   clearTimeout(waitTimeOut);
   let downto = 6;
   let counter = setInterval(() => {
     $waitPlayers.innerHTML = --downto;
     if (downto === 0) {
       clearInterval(counter);
+
+      if (currentPlayer === turn) {
+        startCanvas(username, color);
+      } else {
+        $waitPlayers.innerHTML = "Please wait for your turn";
+      }
+
+      $waitPlayers.style.display = "none";
     }
   }, 1000);
 };

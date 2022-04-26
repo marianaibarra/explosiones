@@ -1,4 +1,4 @@
-import { context } from "./index.js";
+import { context, isMultiplayer } from "./index.js";
 
 export class Projectile {
   constructor(x, y, velocity, radius, color, collided) {
@@ -70,7 +70,8 @@ export class Player {
   draw() {
     context.beginPath();
     context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    context.fillStyle = this.color;
+
+    context.fillStyle = isMultiplayer ? `rgb(${this.color})` : this.color;
     context.fill();
     context.closePath();
   }

@@ -6,18 +6,21 @@ const $usernameInp = document.querySelector("#username");
 // Create request to TCP connection
 let socket = new WebSocket("ws://localhost:9090");
 
-export let clientID = null,
+let clientID = null,
   partyID = null,
-  username = null,
-  color = null;
+  username = null;
 
-const changeDOM = (partyId, typeNoti, messageNoti, typeChange) => {
+const changeDOM = (partyId, typeNoti, messageNoti, typeChange, aditional) => {
+  if (typeof aditional === undefined) {
+    aditional = null;
+  }
   const event = new CustomEvent("changeDOM", {
     detail: {
       partyId,
       typeNoti,
       messageNoti,
       typeChange,
+      aditional,
     },
   });
 
@@ -41,7 +44,6 @@ socket.onmessage = (message) => {
     );
   }
   if (response.method === "join") {
-    color = response.color;
     if (response.message === "no_existing_party") {
       let mesNoti = "The party doesn't exists, try again";
       changeDOM(partyID, "ERROR", mesNoti, response.method);
@@ -62,9 +64,25 @@ socket.onmessage = (message) => {
   }
   if (response.method === "start") {
     partyID = response.partyID;
-    changeDOM(partyID, "START", "Game started", response.method);
+    let color = response.color;
+    let turn = response.turn;
+    changeDOM(partyID, "START", "Game started", response.method, {
+      color,
+      turn,
+      username: username,
+    });
   }
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("lose", () => {
+    const payload = {
+      method: "lose",
+      partyId: partyID,
+    };
+    socket.send(JSON.stringify(payload));
+  });
+});
 
 // Create party
 $createPartyBtn.addEventListener("click", () => {
@@ -78,7 +96,8 @@ $createPartyBtn.addEventListener("click", () => {
 
 // Join party
 $joinPartyBtn.addEventListener("click", () => {
-  if ($joinPartyInp.value === "" || $usernameInp.value === "") return;
+  username = $usernameInp.value;
+  if ($joinPartyInp.value === "" || username === "") return;
 
   partyID = $joinPartyInp.value;
   const payload = {

@@ -54,6 +54,8 @@ wsServer.on("request", (request) => {
       const partyId = result.partyId;
       const party = parties[partyId];
 
+      // No existing party
+
       if (!Object.hasOwn(parties, partyId)) {
         const payload = {
           method: "join",
@@ -75,6 +77,7 @@ wsServer.on("request", (request) => {
       }
 
       if (party.clients.length === 1) {
+        // Notify players that new client has entered
         let payload = {
           method: "join",
           message: "player_joined",
@@ -84,17 +87,9 @@ wsServer.on("request", (request) => {
           clients[client.clientId].connection.send(JSON.stringify(payload));
         });
 
-        const color = { 0: "255,255,255", 1: "158,141,140" }[
-          party.clients.length
-        ];
-
-        // TODO:
-        // - Determinate turn of client
-
         payload = {
           method: "join",
           message: "OK",
-          color,
         };
 
         party.clients.push({
@@ -103,36 +98,37 @@ wsServer.on("request", (request) => {
 
         connection.send(JSON.stringify(payload));
 
-        payload = {
-          method: "start",
-        };
-
-        party.clients.forEach((client) => {
-          clients[client.clientId].connection.send(JSON.stringify(payload));
-        });
+        // Broadcast to all players, the game can start
 
         // FIXME:
-        // - Broadcast to all client in party, game has started when there's 2 clients
-        // notify the other clients in the party that a new client has joined
-      }
-      if (party.clients.length === 0) {
-        const color = { 0: "255,255,255", 1: "158,141,140" }[
-          party.clients.length
-        ];
+        // - color and turn being set undefined
 
-        const payload = {
-          method: "join",
-          message: "OK",
-          color,
-        };
+        party.clients.forEach((client, index) => {
+          const payload = {
+            method: "start",
+            color: index == 0 ? "255,255,255" : "158,141,140",
+            turn: index,
+          };
 
-        party.clients.push({
-          clientId: result.clientId,
+          clients[client.clientId].connection.send(JSON.stringify(payload));
         });
-        connection.send(JSON.stringify(payload));
+        return;
       }
+      const payload = {
+        method: "join",
+        message: "OK",
+      };
+
+      party.clients.push({
+        clientId: result.clientId,
+      });
+      connection.send(JSON.stringify(payload));
     }
   });
+
+  if (result.method === "lose") {
+    console.log(result);
+  }
 
   // TCP connection btw client and server
   let clientId = genString();
