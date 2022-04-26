@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const websocket = require("websocket").server;
 const httpServer = http.createServer();
 
-// partyID => { [
+// partyId => { [
 //   {client}
 //   {client}
 // ] }
@@ -41,10 +41,10 @@ wsServer.on("request", (request) => {
     if (result.method === "create") {
       const payload = {
         method: "create",
-        partyID: genString(),
+        partyId: genString(),
         message: "OK",
       };
-      parties[payload.partyID] = {
+      parties[payload.partyId] = {
         clients: [],
       };
 
@@ -100,13 +100,11 @@ wsServer.on("request", (request) => {
 
         // Broadcast to all players, the game can start
 
-        // FIXME:
-        // - color and turn being set undefined
-
         party.clients.forEach((client, index) => {
           const payload = {
             method: "start",
-            color: index == 0 ? "255,255,255" : "158,141,140",
+            partyId: partyId,
+            color: index === 0 ? "255,255,255" : "158,141,140",
             turn: index,
           };
 
@@ -124,11 +122,19 @@ wsServer.on("request", (request) => {
       });
       connection.send(JSON.stringify(payload));
     }
-  });
 
-  if (result.method === "lose") {
-    console.log(result);
-  }
+    // TODO:
+    // - Broadcast game lose to all players
+
+    if (result.method === "lose") {
+      const payload = {
+        method: "lose",
+      };
+      parties[result.partyId].clients.forEach((client) => {
+        clients[client.clientId].connection.send(JSON.stringify(payload));
+      });
+    }
+  });
 
   // TCP connection btw client and server
   let clientId = genString();
