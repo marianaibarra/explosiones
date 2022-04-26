@@ -5,17 +5,21 @@ const $mesNotification = document.querySelector("#message-notification");
 const $joinPartyInp = document.querySelector("#join-party");
 const $ui = document.querySelector("#ui");
 const $waitPlayers = document.querySelector("#wait-players");
+
 const normalInfo = 5000,
   waitInfo = 300000;
+
 let waitTimeOut = null,
   currentPlayer = 0,
-  maxPlayers = 1;
+  maxPlayers = 1,
+  partyId;
 
-const startCanvas = (username, color) => {
+const startCanvas = (username, color, partyId) => {
   const event = new CustomEvent("start", {
     detail: {
       username,
       color,
+      partyId,
     },
   });
 
@@ -23,10 +27,16 @@ const startCanvas = (username, color) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("lose", (event) => {
+    currentPlayer === 0 ? 1 : 0;
+    // startGame();
+  });
   document.addEventListener("changeDOM", (event) => {
     if (event.detail.typeChange === "create") {
-      $partyId.innerHTML = event.detail.partyId;
-      $joinPartyInp.value = event.detail.partyId;
+      partyId = event.detail.aditional.partyId;
+
+      $partyId.innerHTML = partyId;
+      $joinPartyInp.value = partyId;
 
       showNoti(event.detail, normalInfo);
     }
@@ -43,13 +53,17 @@ document.addEventListener("DOMContentLoaded", () => {
       startGame(
         event.detail.aditional.username,
         event.detail.aditional.color,
-        event.detail.aditional.turn
+        event.detail.aditional.turn,
+        event.detail.aditional.partyId
       );
     }
   });
 });
 
-const startGame = (username, color, turn) => {
+const startGame = (username, color, turn, aditional) => {
+  if (typeof aditional === undefined) {
+    aditional = null;
+  }
   clearTimeout(waitTimeOut);
   let downto = 6;
   let counter = setInterval(() => {
@@ -57,13 +71,12 @@ const startGame = (username, color, turn) => {
     if (downto === 0) {
       clearInterval(counter);
 
-      if (currentPlayer === turn) {
-        startCanvas(username, color);
+      if (turn === currentPlayer) {
+        startCanvas(username, color, aditional);
+        $waitPlayers.style.display = "none";
       } else {
         $waitPlayers.innerHTML = "Please wait for your turn";
       }
-
-      $waitPlayers.style.display = "none";
     }
   }, 1000);
 };

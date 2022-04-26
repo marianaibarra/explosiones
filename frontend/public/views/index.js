@@ -32,15 +32,19 @@ let switcher = 0;
 let username = null;
 let color = null;
 export let isMultiplayer = false;
+let partyId;
 
 const mouse = {
   x: undefined,
   y: undefined,
 };
 
-const loseGame = () => {
-  const event = new CustomEvent("lose");
-
+const loseGame = (partyId) => {
+  const event = new CustomEvent("lose", {
+    detail: {
+      partyId,
+    },
+  });
   document.dispatchEvent(event);
 };
 
@@ -48,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("start", (event) => {
     isMultiplayer = true;
     username = event.detail.username;
+    partyId = event.detail.partyId;
     color = event.detail.color;
     $ui.style.display = "none";
     isGameRunning = true;
@@ -179,6 +184,7 @@ function animate() {
               enemy.y
             ) <= enemy.radius
           ) {
+            // Explosion animation
             for (let i = 0; i <= enemy.radius; i++) {
               let dx = (Math.random() - 0.5) * (Math.random() * 6);
               let dy = (Math.random() - 0.5) * (Math.random() * 6);
@@ -225,6 +231,7 @@ function animate() {
     });
   }
 
+  // Particles update
   particles.forEach((particle, i) => {
     if (particle.alpha <= 0) {
       particles.splice(i, 1);
@@ -257,18 +264,33 @@ function animate() {
     if (enemies.length === 0) isGameWin = true;
     if (!isGameRunning) {
       isGameWin = false;
-      loseGame();
     }
-    $ui.style.display = "flex";
-    if (isGameWin) {
-      score = score;
-      numberOfEnemies += 2;
-      $statusOfGame.innerHTML = "You win!";
+    if (!isMultiplayer) {
+      $ui.style.display = "flex";
+      if (isGameWin) {
+        score = score;
+        numberOfEnemies += 2;
+        $statusOfGame.innerHTML = "You win!";
+      } else {
+        score = 0;
+        numberOfEnemies = 2;
+        $statusOfGame.innerHTML = "Game lose, try again";
+        enemies = [];
+      }
     } else {
-      score = 0;
-      numberOfEnemies = 2;
-      $statusOfGame.innerHTML = "Game lose, try again";
-      enemies = [];
+      if (isGameWin) {
+        score = score;
+        numberOfEnemies += 2;
+        setTimeout(() => {
+          init();
+          animate();
+        }, 1000);
+      } else {
+        score = 0;
+        numberOfEnemies = 2;
+        enemies = [];
+        loseGame(partyId);
+      }
     }
   }
 }

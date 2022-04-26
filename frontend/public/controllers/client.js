@@ -7,10 +7,10 @@ const $usernameInp = document.querySelector("#username");
 let socket = new WebSocket("ws://localhost:9090");
 
 let clientID = null,
-  partyID = null,
   username = null;
+var partyId;
 
-const changeDOM = (partyId, typeNoti, messageNoti, typeChange, aditional) => {
+const changeDOM = (typeNoti, messageNoti, typeChange, aditional) => {
   if (typeof aditional === undefined) {
     aditional = null;
   }
@@ -35,50 +35,54 @@ socket.onmessage = (message) => {
     clientID = response.clientId;
   }
   if (response.method === "create") {
-    partyID = response.partyID;
+    partyId = response.partyId;
     changeDOM(
-      partyID,
       response.message,
       "New party created succesfully",
-      response.method
+      response.method,
+      { partyId }
     );
   }
   if (response.method === "join") {
     if (response.message === "no_existing_party") {
       let mesNoti = "The party doesn't exists, try again";
-      changeDOM(partyID, "ERROR", mesNoti, response.method);
+      changeDOM("ERROR", mesNoti, response.method);
       return;
     }
     if (response.message === "full_party") {
       let mesNoti = "Full party, try again";
-      changeDOM(partyID, "ERROR", mesNoti, response.method);
+      changeDOM("ERROR", mesNoti, response.method);
       return;
     }
     if (response.message === "player_joined") {
       let mesNoti = "A player has joined";
-      changeDOM(partyID, "START", mesNoti, response.method);
+      changeDOM("START", mesNoti, response.method);
       return;
     }
     let mesNoti = "Joined succesfully";
-    changeDOM(partyID, "OK", mesNoti, response.method);
+    changeDOM("OK", mesNoti, response.method);
   }
   if (response.method === "start") {
-    partyID = response.partyID;
+    // partyId = response.partyId;
     let color = response.color;
     let turn = response.turn;
-    changeDOM(partyID, "START", "Game started", response.method, {
+    changeDOM("START", "Game started", response.method, {
       color,
       turn,
       username: username,
+      partyId: partyId,
     });
+  }
+  if (response.method === "lose") {
+    console.log(response);
   }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.addEventListener("lose", () => {
+  document.addEventListener("lose", (event) => {
     const payload = {
       method: "lose",
-      partyId: partyID,
+      partyId: event.detail.partyId,
     };
     socket.send(JSON.stringify(payload));
   });
@@ -97,13 +101,13 @@ $createPartyBtn.addEventListener("click", () => {
 // Join party
 $joinPartyBtn.addEventListener("click", () => {
   username = $usernameInp.value;
-  if ($joinPartyInp.value === "" || username === "") return;
+  partyId = $joinPartyInp.value;
+  if (partyId === "" || username === "") return;
 
-  partyID = $joinPartyInp.value;
   const payload = {
     method: "join",
     clientId: clientID,
-    partyId: partyID,
+    partyId: partyId,
   };
   socket.send(JSON.stringify(payload));
 });

@@ -13,7 +13,7 @@ export class Projectile {
   draw() {
     context.beginPath();
     context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    context.fillStyle = `rgb(${this.color})`;
+    context.fillStyle = !isMultiplayer ? this.color : `rgb(${this.color})`;
     context.fill();
     context.closePath();
   }
