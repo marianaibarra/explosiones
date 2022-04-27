@@ -33,16 +33,18 @@ let username = null;
 let color = null;
 export let isMultiplayer = false;
 let partyId;
+let turn;
 
 const mouse = {
   x: undefined,
   y: undefined,
 };
 
-const loseGame = (partyId) => {
+const loseGame = (partyId, turn) => {
   const event = new CustomEvent("lose", {
     detail: {
       partyId,
+      turn,
     },
   });
   document.dispatchEvent(event);
@@ -54,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
     username = event.detail.username;
     partyId = event.detail.partyId;
     color = event.detail.color;
+    turn = event.detail.turn;
     $ui.style.display = "none";
     isGameRunning = true;
     init();
@@ -289,7 +292,7 @@ function animate() {
         score = 0;
         numberOfEnemies = 2;
         enemies = [];
-        loseGame(partyId);
+        loseGame(partyId, turn);
       }
     }
   }
@@ -298,6 +301,7 @@ function animate() {
 $startGameBtn.addEventListener("click", () => {
   $ui.style.display = "none";
   isGameRunning = true;
+  isMultiplayer = false;
   init();
   animate();
 });

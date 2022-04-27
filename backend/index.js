@@ -123,12 +123,14 @@ wsServer.on("request", (request) => {
       connection.send(JSON.stringify(payload));
     }
 
-    // TODO:
-    // - Broadcast game lose to all players
+    // - Broadcast lose method to all players
 
     if (result.method === "lose") {
+      let turn;
+      result.turn === 0 ? (turn = 1) : (turn = 0);
       const payload = {
         method: "lose",
+        turn,
       };
       parties[result.partyId].clients.forEach((client) => {
         clients[client.clientId].connection.send(JSON.stringify(payload));

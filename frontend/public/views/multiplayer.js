@@ -12,14 +12,18 @@ const normalInfo = 5000,
 let waitTimeOut = null,
   currentPlayer = 0,
   maxPlayers = 1,
-  partyId;
+  partyId,
+  username,
+  color,
+  turn;
 
-const startCanvas = (username, color, partyId) => {
+const startCanvas = (username, color, turn, partyId) => {
   const event = new CustomEvent("start", {
     detail: {
       username,
       color,
       partyId,
+      turn,
     },
   });
 
@@ -27,10 +31,6 @@ const startCanvas = (username, color, partyId) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.addEventListener("lose", (event) => {
-    currentPlayer === 0 ? 1 : 0;
-    // startGame();
-  });
   document.addEventListener("changeDOM", (event) => {
     if (event.detail.typeChange === "create") {
       partyId = event.detail.aditional.partyId;
@@ -50,21 +50,29 @@ document.addEventListener("DOMContentLoaded", () => {
       showNoti(event.detail, normalInfo);
     }
     if (event.detail.typeChange === "start") {
-      startGame(
-        event.detail.aditional.username,
-        event.detail.aditional.color,
-        event.detail.aditional.turn,
-        event.detail.aditional.partyId
-      );
+      username = event.detail.aditional.username;
+      color = event.detail.aditional.color;
+      (turn = event.detail.aditional.turn),
+        startGame(true, username, color, turn, event.detail.aditional.partyId);
+    }
+    if (event.detail.typeChange === "lose") {
+      console.log("switch turns");
+      console.log(username, color, turn, event.detail.partyId);
+      console.log("current turn ", currentPlayer);
+      currentPlayer = event.detail.aditional.turn;
+      console.log(currentPlayer);
+      startGame(false, username, color, turn, event.detail.partyId);
     }
   });
 });
 
-const startGame = (username, color, turn, aditional) => {
+const startGame = (isWait, username, color, turn, aditional) => {
   if (typeof aditional === undefined) {
     aditional = null;
   }
-  clearTimeout(waitTimeOut);
+  if (isWait) {
+    clearTimeout(waitTimeOut);
+  }
   let downto = 6;
   let counter = setInterval(() => {
     $waitPlayers.innerHTML = --downto;
@@ -72,7 +80,7 @@ const startGame = (username, color, turn, aditional) => {
       clearInterval(counter);
 
       if (turn === currentPlayer) {
-        startCanvas(username, color, aditional);
+        startCanvas(username, color, turn, aditional);
         $waitPlayers.style.display = "none";
       } else {
         $waitPlayers.innerHTML = "Please wait for your turn";

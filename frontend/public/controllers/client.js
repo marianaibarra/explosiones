@@ -74,7 +74,8 @@ socket.onmessage = (message) => {
     });
   }
   if (response.method === "lose") {
-    console.log(response);
+    let turn = response.turn;
+    changeDOM("SWITCH", "Switch places", response.method, { turn });
   }
 };
 
@@ -83,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const payload = {
       method: "lose",
       partyId: event.detail.partyId,
+      turn: event.detail.turn,
     };
     socket.send(JSON.stringify(payload));
   });
