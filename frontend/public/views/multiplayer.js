@@ -56,11 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
         startGame(true, username, color, turn, event.detail.aditional.partyId);
     }
     if (event.detail.typeChange === "lose") {
-      console.log("switch turns");
-      console.log(username, color, turn, event.detail.partyId);
-      console.log("current turn ", currentPlayer);
       currentPlayer = event.detail.aditional.turn;
-      console.log(currentPlayer);
       startGame(false, username, color, turn, event.detail.partyId);
     }
   });
@@ -72,7 +68,10 @@ const startGame = (isWait, username, color, turn, aditional) => {
   }
   if (isWait) {
     clearTimeout(waitTimeOut);
+  } else {
+    $waitPlayers.style.display = "flex";
   }
+
   let downto = 6;
   let counter = setInterval(() => {
     $waitPlayers.innerHTML = --downto;

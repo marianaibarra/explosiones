@@ -41,6 +41,7 @@ const mouse = {
 };
 
 const loseGame = (partyId, turn) => {
+  context.clearRect(0, 0, $canvas.width, $canvas.height);
   const event = new CustomEvent("lose", {
     detail: {
       partyId,
