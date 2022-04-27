@@ -13,5 +13,8 @@
   "license": "ISC",
   "dependencies": {
     "websocket": "^1.0.34"
-  }
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+  },
 }
