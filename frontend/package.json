@@ -10,9 +10,5 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "cross-env": "^7.0.3",
-    "response-time": "^2.3.2"
-  }
+  "license": "ISC"
 }
